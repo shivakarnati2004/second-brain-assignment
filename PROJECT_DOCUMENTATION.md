@@ -148,44 +148,35 @@ Coverage includes:
 - graph API
 - upload extraction (TXT + MD)
 
-## 7) Render Deployment Runbook
+## 7) Netlify Deployment Runbook
 
-Deployment file:
+Deployment config file:
 
-- `render.yaml` (Blueprint for web service + Postgres)
+- `netlify.toml`
 
-What Render provisions:
+Key settings:
 
-- Web service: `second-brain` (Node runtime)
-- Postgres: `second-brain-db`
+- Build command: `npm run build`
+- Node version: `20`
+- Plugin: `@netlify/plugin-nextjs`
 
-Important runtime behavior:
+Required environment variables in Netlify:
 
-- Build command: `npm ci ; npm run build`
-- Start command: `npm run db:init ; npm run start`
-- DB schema is initialized automatically at service boot.
-
-Required Render environment variables to set manually:
-
+- `DATABASE_URL`
 - `GEMINI_API_KEY`
+- `GEMINI_MODEL` (`gemini-2.5-flash`)
 - `NEXT_PUBLIC_APP_URL`
+- `AUTH_SECRET`
 - `PUBLIC_BRAIN_API_KEY`
 - `NEXT_PUBLIC_PUBLIC_BRAIN_API_KEY` (must match `PUBLIC_BRAIN_API_KEY`)
 - `PUBLIC_BRAIN_ALLOWED_ORIGINS`
 
-Auto-managed via Blueprint:
+Important:
 
-- `DATABASE_URL` (from Render Postgres connection string)
-- `AUTH_SECRET` (generated)
-- `GEMINI_MODEL` default (`gemini-2.5-flash`)
+- Netlify does not provide Postgres; use external DB (Neon/Supabase).
+- Run `npm run db:init` once against production DB after first deploy.
 
-Post-deploy checks:
-
-1. Service health endpoint `/` returns 200.
-2. `/login` is reachable.
-3. Register/login works.
-4. Create one knowledge item and verify dashboard listing.
-5. Run local smoke suite against prod URL if needed.
+Detailed click-by-click steps are documented in `DEPLOY_NETLIFY.md`.
 
 ## 8) Troubleshooting
 

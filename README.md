@@ -220,46 +220,28 @@ Expected result:
 
 ## ☁️ Deployment
 
-### Render (A → Z)
+### Netlify + Neon/Supabase (Free Tier)
 
-This repo is now Render-ready with a Blueprint file: `render.yaml`.
+1. Import repo into Netlify (**Add new site → Import existing project**)
+2. Set branch to `main`
+3. If required, set base directory to `second-brain`
+4. Keep build command: `npm run build`
+5. Add environment variables in Netlify:
+      - `DATABASE_URL`
+      - `GEMINI_API_KEY`
+      - `GEMINI_MODEL=gemini-2.5-flash`
+      - `NEXT_PUBLIC_APP_URL=https://<your-site>.netlify.app`
+      - `AUTH_SECRET`
+      - `PUBLIC_BRAIN_API_KEY`
+      - `NEXT_PUBLIC_PUBLIC_BRAIN_API_KEY` (same as `PUBLIC_BRAIN_API_KEY`)
+      - `PUBLIC_BRAIN_ALLOWED_ORIGINS=https://<your-site>.netlify.app,http://localhost:3000`
+6. Deploy site
+7. Run schema initialization once against production DB:
+      ```bash
+      DATABASE_URL=<production_db_url> npm run db:init
+      ```
 
-Detailed runbook: `DEPLOY_RENDER.md`
-
-1. Push this project to GitHub/GitLab with `render.yaml` at repo root.
-2. In Render dashboard: **New** → **Blueprint**.
-3. Connect your repo and select the branch.
-4. Render auto-detects and creates:
-   - `second-brain-db` (PostgreSQL)
-   - `second-brain` (Node web service)
-5. In the environment variable form, set:
-   - `GEMINI_API_KEY` = your Google AI Studio key
-   - `NEXT_PUBLIC_APP_URL` = your Render web URL (e.g. `https://second-brain.onrender.com`)
-   - `PUBLIC_BRAIN_API_KEY` = random secure token
-   - `NEXT_PUBLIC_PUBLIC_BRAIN_API_KEY` = same exact value as `PUBLIC_BRAIN_API_KEY`
-   - `PUBLIC_BRAIN_ALLOWED_ORIGINS` = your Render web URL
-6. Keep generated `AUTH_SECRET` as provided by Render.
-7. Click **Apply** and deploy.
-8. Wait for first deploy completion.
-9. Open service URL and verify:
-   - `/` loads landing page
-   - `/login` loads auth page
-10. Optional post-deploy validation from local machine:
-    ```bash
-    powershell -ExecutionPolicy Bypass -File .\scripts\smoke-curl.ps1
-    ```
-
-Notes:
-
-- `startCommand` runs `npm run db:init` before `npm run start`, so schema is auto-initialized on Render.
-- On free tier, cold starts can delay first response.
-
-### Alternative: Vercel + Neon
-
-1. Create PostgreSQL at [neon.tech](https://neon.tech)
-2. Deploy app to Vercel
-3. Set env vars (`DATABASE_URL`, `GEMINI_API_KEY`, `AUTH_SECRET`, app/public API vars)
-4. Run `npm run db:init` once against the production database
+Detailed step-by-step guide: `DEPLOY_NETLIFY.md`
 
 ## 🎨 Design System
 
