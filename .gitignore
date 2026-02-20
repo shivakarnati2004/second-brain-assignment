@@ -23,6 +23,11 @@ dist/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+debug-cookies.txt
+tmp-upload.txt
+smoke-upload.txt
+smoke-upload.md
+.smoke-cookies.txt
 
 # TypeScript
 *.tsbuildinfo
