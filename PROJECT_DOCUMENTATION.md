@@ -148,19 +148,19 @@ Coverage includes:
 - graph API
 - upload extraction (TXT + MD)
 
-## 7) Netlify Deployment Runbook
+## 7) Render Deployment Runbook
 
 Deployment config file:
 
-- `netlify.toml`
+- `render.yaml`
 
 Key settings:
 
-- Build command: `npm run build`
+- Build command: `npm ci && npm run build`
+- Start command: `npm run start`
 - Node version: `20`
-- Plugin: `@netlify/plugin-nextjs`
 
-Required environment variables in Netlify:
+Required environment variables in Render web service:
 
 - `DATABASE_URL`
 - `GEMINI_API_KEY`
@@ -173,10 +173,10 @@ Required environment variables in Netlify:
 
 Important:
 
-- Netlify does not provide Postgres; use external DB (Neon/Supabase).
+- Render Postgres can be attached directly via `render.yaml`.
 - Run `npm run db:init` once against production DB after first deploy.
 
-Detailed click-by-click steps are documented in `DEPLOY_NETLIFY.md`.
+Detailed click-by-click steps are documented in `DEPLOY_RENDER.md`.
 
 ## 8) Troubleshooting
 

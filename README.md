@@ -220,28 +220,28 @@ Expected result:
 
 ## ☁️ Deployment
 
-### Netlify + Neon/Supabase (Free Tier)
+### Render + Render Postgres (Free Tier)
 
-1. Import repo into Netlify (**Add new site → Import existing project**)
-2. Set branch to `main`
-3. If required, set base directory to `second-brain`
-4. Keep build command: `npm run build`
-5. Add environment variables in Netlify:
+1. In Render, create services using **Blueprint** from this repo
+2. Ensure `render.yaml` is detected (it creates web + postgres services)
+3. Keep build command: `npm ci && npm run build`
+4. Keep start command: `npm run start`
+5. Add/verify environment variables in Render web service:
       - `DATABASE_URL`
       - `GEMINI_API_KEY`
       - `GEMINI_MODEL=gemini-2.5-flash`
-      - `NEXT_PUBLIC_APP_URL=https://<your-site>.netlify.app`
+      - `NEXT_PUBLIC_APP_URL=https://<your-service>.onrender.com`
       - `AUTH_SECRET`
       - `PUBLIC_BRAIN_API_KEY`
       - `NEXT_PUBLIC_PUBLIC_BRAIN_API_KEY` (same as `PUBLIC_BRAIN_API_KEY`)
-      - `PUBLIC_BRAIN_ALLOWED_ORIGINS=https://<your-site>.netlify.app,http://localhost:3000`
-6. Deploy site
+      - `PUBLIC_BRAIN_ALLOWED_ORIGINS=https://<your-service>.onrender.com,http://localhost:3000`
+6. Deploy service
 7. Run schema initialization once against production DB:
       ```bash
       DATABASE_URL=<production_db_url> npm run db:init
       ```
 
-Detailed step-by-step guide: `DEPLOY_NETLIFY.md`
+Detailed step-by-step guide: `DEPLOY_RENDER.md`
 
 ## 🎨 Design System
 

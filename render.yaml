@@ -1,0 +1,36 @@
+services:
+  - type: web
+    name: second-brain-web
+    runtime: node
+    plan: free
+    rootDir: .
+    buildCommand: npm ci && npm run build
+    startCommand: npm run start
+    healthCheckPath: /
+    envVars:
+      - key: NODE_VERSION
+        value: 20
+      - key: GEMINI_MODEL
+        value: gemini-2.5-flash
+      - key: DATABASE_URL
+        fromDatabase:
+          name: second-brain-db
+          property: connectionString
+      - key: NEXT_PUBLIC_APP_URL
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: AUTH_SECRET
+        sync: false
+      - key: PUBLIC_BRAIN_API_KEY
+        sync: false
+      - key: NEXT_PUBLIC_PUBLIC_BRAIN_API_KEY
+        sync: false
+      - key: PUBLIC_BRAIN_ALLOWED_ORIGINS
+        sync: false
+
+databases:
+  - name: second-brain-db
+    plan: free
+    databaseName: second_brain
+    user: second_brain_user
