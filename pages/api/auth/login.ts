@@ -2,6 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import bcrypt from 'bcryptjs';
 import { query } from '@/lib/db';
 import { getSession } from '@/lib/auth';
+import { ensureSchemaInitialized } from '@/lib/schema';
 
 interface UserRow {
   id: string;
@@ -21,6 +22,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
+    await ensureSchemaInitialized();
+
     const [user] = await query<UserRow>(
       `SELECT id, email, name, password_hash
        FROM users

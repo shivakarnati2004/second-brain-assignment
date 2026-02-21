@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import bcrypt from 'bcryptjs';
 import { query } from '@/lib/db';
+import { ensureSchemaInitialized } from '@/lib/schema';
 
 interface ExistingUser {
   id: string;
@@ -32,6 +33,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
+    await ensureSchemaInitialized();
+
     const [existing] = await query<ExistingUser>(
       'SELECT id FROM users WHERE email = $1',
       [safeEmail]
