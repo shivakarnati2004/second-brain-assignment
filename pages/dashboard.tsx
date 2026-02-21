@@ -27,6 +27,7 @@ export default function Dashboard() {
   const [items, setItems] = useState<KnowledgeItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [authChecked, setAuthChecked] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [sourceNameFilter, setSourceNameFilter] = useState('');
   const [typeFilter, setTypeFilter] = useState('all');
@@ -60,13 +61,16 @@ export default function Dashboard() {
   useEffect(() => {
     const verifyAuth = async () => {
       try {
+        setAuthError(null);
         const res = await fetch('/api/auth/me');
         if (!res.ok) {
+          setAuthError('Your session is not available. Please sign in again.');
           await router.replace('/login');
           return;
         }
         setAuthChecked(true);
       } catch {
+        setAuthError('Unable to verify session. Please sign in again.');
         await router.replace('/login');
       }
     };
@@ -103,7 +107,30 @@ export default function Dashboard() {
   };
 
   if (!authChecked) {
-    return null;
+    return (
+      <>
+        <Head>
+          <title>Dashboard — Second Brain</title>
+        </Head>
+        <div style={{ minHeight: '100vh', display: 'grid', placeItems: 'center', padding: 24 }}>
+          <div className="glass" style={{ borderRadius: 16, padding: 24, maxWidth: 460, width: '100%' }}>
+            <div style={{ fontFamily: 'var(--font-display)', fontSize: 22, marginBottom: 10 }}>
+              {authError ? 'Session Check Failed' : 'Loading Dashboard...'}
+            </div>
+            <p style={{ color: 'var(--color-muted)', fontSize: 14, marginBottom: 16 }}>
+              {authError || 'Verifying your login session.'}
+            </p>
+            <button
+              className="btn-primary"
+              onClick={() => router.replace('/login')}
+              aria-label="Go to login"
+            >
+              Go to Login
+            </button>
+          </div>
+        </div>
+      </>
+    );
   }
 
   const handleDelete = async (id: string) => {
