@@ -1,11 +1,14 @@
 import Head from 'next/head';
 import Link from 'next/link';
+import type { GetServerSideProps } from 'next';
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useRouter } from 'next/router';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-hot-toast';
+import { getIronSession } from 'iron-session';
 import { KnowledgeItem } from '@/types';
 import { formatDistanceToNow } from 'date-fns';
+import { AppSessionData, sessionOptions } from '@/lib/auth';
 import AddItemModal from '@/components/AddItemModal';
 import ChatPanel from '@/components/ChatPanel';
 import KnowledgeCard from '@/components/KnowledgeCard';
@@ -26,8 +29,6 @@ export default function Dashboard() {
   const router = useRouter();
   const [items, setItems] = useState<KnowledgeItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [authChecked, setAuthChecked] = useState(false);
-  const [authError, setAuthError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [sourceNameFilter, setSourceNameFilter] = useState('');
   const [typeFilter, setTypeFilter] = useState('all');
@@ -59,30 +60,9 @@ export default function Dashboard() {
   }, [search, sourceNameFilter, typeFilter, sort]);
 
   useEffect(() => {
-    const verifyAuth = async () => {
-      try {
-        setAuthError(null);
-        const res = await fetch('/api/auth/me');
-        if (!res.ok) {
-          setAuthError('Your session is not available. Please sign in again.');
-          await router.replace('/login');
-          return;
-        }
-        setAuthChecked(true);
-      } catch {
-        setAuthError('Unable to verify session. Please sign in again.');
-        await router.replace('/login');
-      }
-    };
-
-    verifyAuth();
-  }, [router]);
-
-  useEffect(() => {
-    if (!authChecked) return;
     const timer = setTimeout(fetchItems, 300);
     return () => clearTimeout(timer);
-  }, [authChecked, fetchItems]);
+  }, [fetchItems]);
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -105,33 +85,6 @@ export default function Dashboard() {
       toast.error('Failed to logout');
     }
   };
-
-  if (!authChecked) {
-    return (
-      <>
-        <Head>
-          <title>Dashboard — Second Brain</title>
-        </Head>
-        <div style={{ minHeight: '100vh', display: 'grid', placeItems: 'center', padding: 24 }}>
-          <div className="glass" style={{ borderRadius: 16, padding: 24, maxWidth: 460, width: '100%' }}>
-            <div style={{ fontFamily: 'var(--font-display)', fontSize: 22, marginBottom: 10 }}>
-              {authError ? 'Session Check Failed' : 'Loading Dashboard...'}
-            </div>
-            <p style={{ color: 'var(--color-muted)', fontSize: 14, marginBottom: 16 }}>
-              {authError || 'Verifying your login session.'}
-            </p>
-            <button
-              className="btn-primary"
-              onClick={() => router.replace('/login')}
-              aria-label="Go to login"
-            >
-              Go to Login
-            </button>
-          </div>
-        </div>
-      </>
-    );
-  }
 
   const handleDelete = async (id: string) => {
     try {
@@ -452,6 +405,20 @@ export default function Dashboard() {
     </>
   );
 }
+
+export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
+  const session = await getIronSession<AppSessionData>(req, res, sessionOptions);
+  if (!session.user) {
+    return {
+      redirect: {
+        destination: '/login',
+        permanent: false,
+      },
+    };
+  }
+
+  return { props: {} };
+};
 
 function ItemDetailModal({ item, onClose, onDelete }: { item: KnowledgeItem; onClose: () => void; onDelete: () => void }) {
   const customMetadataEntries = Object.entries(item.metadata?.custom || {});
